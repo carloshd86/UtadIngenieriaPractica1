@@ -22,13 +22,15 @@ const int MUSHROOM_OBTAINED_POINTS = 50;
 const int MUSHROOM_DESTROYED_POINTS = 10;
 
 
-struct Entity {
+struct Bullet {
 	int position;
 	bool direction; // true to right, false to left
 };
 
-struct Bullet : public Entity {};
-struct Enemy : public Entity {};
+struct Enemy {
+	int position;
+	bool direction; // true to right, false to left
+};
 
 /************/
 
@@ -36,14 +38,14 @@ bool isValidPosition(int position) {
 	return (position >= LEFT_LIMIT && position < RIGHT_LIMIT);
 }
 
-bool checkDynamicEntityHit(const Entity &entity, int hitPosition) {
-	int nextPosition = entity.direction ? (entity.position + 1) : (entity.position - 1);
-	return(!(entity.position - hitPosition) || !(nextPosition - hitPosition));
+bool checkBulletHit(const Bullet &bullet, int hitPosition) {
+	int nextPosition = bullet.direction ? (bullet.position + 1) : (bullet.position - 1);
+	return(!(bullet.position - hitPosition) || !(nextPosition - hitPosition));
 }
 
 /************/
 
-// TODO Utilizar list o vector de balas para disparar varias balas a la vez, enemigos a la vez, champiñones a la vez.
+// TODO Utilizar clases. Módulo gestor meteorológico (varios estados de lluvia).
 
 int main() {
 	int                         i;
@@ -135,7 +137,7 @@ int main() {
 		itB = lstBullets.begin();
 		while (itB != lstBullets.end()) {
 			bool bulletErased = false;
-			if (isValidPosition(mushroomPosition) && checkDynamicEntityHit(*itB, mushroomPosition)) { // Bullet hits mushroom
+			if (isValidPosition(mushroomPosition) && checkBulletHit(*itB, mushroomPosition)) { // Bullet hits mushroom
 				mushroomPosition = MUSHROOM_RESPAWN_COUNT;
 				score -= MUSHROOM_DESTROYED_POINTS;
 				itB = lstBullets.erase(itB);
@@ -144,7 +146,7 @@ int main() {
 			else {
 				itE = lstEnemies.begin();
 				while (itE != lstEnemies.end()) {
-					if (checkDynamicEntityHit(*itB, itE->position)) { // Bullet hits enemy
+					if (checkBulletHit(*itB, itE->position)) { // Bullet hits enemy
 						itE = lstEnemies.erase(itE);
 						itB = lstBullets.erase(itB);
 						bulletErased = true;
